@@ -1,0 +1,17 @@
+{
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "*.ts"
+  ],
+  "compilerOptions": {
+    "alwaysStrict": false,
+    "noImplicitAny": false,
+    "allowJs": false,
+    "moduleResolution": "node",
+    "target": "es6",
+    "module": "esnext",
+    "noEmitHelpers": true,
+    "importHelpers": true
+  }
+}
