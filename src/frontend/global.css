@@ -3,7 +3,7 @@ body {
   color: #000000;
   text-align: center;
   background: #333333;
-  background-image: url("/images/congruent_outline.svg");
+  background-image: url("./images/congruent_outline.svg");
   margin: 0;
 }
 .vert-margin {

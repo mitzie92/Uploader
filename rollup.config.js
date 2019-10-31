@@ -122,8 +122,9 @@ export default async () => ({
             }),
             copy({
               targets: [{
-                src: "index.html", dest: "dist/frontend",
-                src: "images/*", dest: "dist/frontend/images"
+                src: "src/frontend/index.html", dest: "dist/frontend",
+              }, {
+                src: "src/frontend/images/*", dest: "dist/frontend/images"
               }]
             })
           ]
