@@ -1,17 +1,31 @@
 const { app, BrowserWindow } = require("electron");
+const { format } = require("url");
+const { join } = require("path");
+import loginListener from "./loginListener";
+import fileListener from "./fileListener";
 
 function createWindow () {
   // Create the browser window.
-  let win = new BrowserWindow({
-    width: 800,
+  let window = new BrowserWindow({
+    width: 500,
     height: 600,
     webPreferences: {
       nodeIntegration: true
     }
   });
 
-  // and load the index.html of the app.
-  win.loadFile("../../dist/frontend/index.html");
+  window.loadURL(
+    format({
+      pathname: join(__dirname, "../../dist/frontend/index.html"),
+      protocol: "file:",
+      slashes: true
+    })
+  );
+
+  loginListener();
+  fileListener({
+    APPDATA: app.getPath("userData")
+  });
 }
 
 app.on("ready", createWindow);

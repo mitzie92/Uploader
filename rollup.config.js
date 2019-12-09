@@ -5,11 +5,14 @@ import sucrase from "rollup-plugin-sucrase";
 import postcss from "rollup-plugin-postcss";
 import postcssNesting from "postcss-nesting";
 import postcssCustomProperties from "postcss-custom-properties";
+import postcssURL from "postcss-url";
 import nodeResolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
 import replace from "rollup-plugin-re";
 import copy from "rollup-plugin-copy";
 import OMT from "@surma/rollup-plugin-off-main-thread";
+import { html } from "./config/rollup-plugin-html";
+import del from "rollup-plugin-delete";
 
 const localPkg = require("./package.json");
 
@@ -31,14 +34,20 @@ export default async () => ({
     sourcemap: env.NODE_ENV !== "production" ? "inline" : true,
     exports: "named",
     dir: path.resolve(__dirname, `dist/${env.TARGET}/`),
+    entryFileNames: "[name]-[hash].js",
+    assetFileNames: "[name]-[hash]",
     format: "amd"
   },
+  external: [
+    "electron"
+  ],
   treeshake: env.NODE_ENV === "production",
   experimentalOptimizeChunks: env.NODE_ENV === "production",
   watch: {
     clearScreen: false
   },
   plugins: [
+    del({ targets: `dist/${env.TARGET}/**` }),
     nodeResolve({
       extensions: [".mjs", ".js", ".jsx", ".json", ".ts", ".tsx"]
     }),
@@ -71,14 +80,12 @@ export default async () => ({
     }),
     env.NODE_ENV !== "production"
       ? sucrase({
-          include: ["./src/*/*.ts+(|x)", "./src/**/*.ts+(|x)"],
-          exclude: "node_modules/**",
+          include: ["./src/*/*.ts+(|x)", "./src/**/*.ts+(|x)", "node_modules/@modwatch/core/src/**/*.ts+(|x)"],
           transforms: ["jsx", "typescript"],
           jsxPragma: "h"
         })
       : require("rollup-plugin-typescript")({
-          include: ["./src/*/*.ts+(|x)", "./src/**/*.ts+(|x)"],
-          exclude: "node_modules/**",
+          include: ["./src/*/*.ts+(|x)", "./src/**/*.ts+(|x)", "node_modules/@modwatch/core/src/**/*.ts+(|x)"],
           tsconfig: `./config/tsconfig.${env.TARGET}.json`,
           typescript: require("typescript"),
           tslib: require("tslib"),
@@ -88,23 +95,21 @@ export default async () => ({
         }),
       OMT({
         loader: (await readFileAsync(
-          path.resolve(__dirname, "loadz0r", "loader.min.js"),
+          path.resolve("./node_modules/@modwatch/core/loadz0r/loader.min.js"),
           "utf8"
         )).replace(
           /process\.env\.PUBLIC_PATH/g,
-          JSON.stringify(`/dist/frontend`)
+          JSON.stringify(`dist/frontend`)
         ),
         prependLoader: (chunk, workerFiles) =>
-          (chunk.isEntry && chunk.fileName.includes("index.js")) ||
-          workerFiles.includes(chunk.facadeModuleId)
+          (chunk.isEntry || workerFiles.includes(chunk.facadeModuleId))
       })
   ]
     .concat(
       env.TARGET === "frontend"
         ? [
             postcss({
-              include: ["./src/frontend/*.css", "./src/frontend/**/*.css"],
-              exclude: "node_modules/**",
+              include: ["./src/frontend/*.css", "./src/frontend/**/*.css", "./node_modules/@modwatch/core/**/*.css"],
               sourceMap: env.NODE_ENV === "production",
               modules: {
                 scopeBehaviour: "global"
@@ -112,9 +117,12 @@ export default async () => ({
               extract: true,
               plugins: [
                 postcssNesting(),
-                postcssCustomProperties({
-                  importFrom: "./src/frontend/properties.css",
-                  preserve: false
+                // postcssCustomProperties({
+                //   importFrom: path.resolve("./node_modules/@modwatch/core/src/properties.css"),
+                //   preserve: false
+                // }),
+                postcssURL({
+                  url: "inline"
                 })
               ].concat(
                 env.NODE_ENV !== "production" ? [] : [require("cssnano")()]
@@ -122,8 +130,6 @@ export default async () => ({
             }),
             copy({
               targets: [{
-                src: "src/frontend/index.html", dest: "dist/frontend",
-              }, {
                 src: "src/frontend/images/*", dest: "dist/frontend/images"
               }]
             })
@@ -141,12 +147,18 @@ export default async () => ({
               sourcemap: true
             }),
             require("rollup-plugin-visualizer")({
-              filename: `./node_modules/.visualizer/index.html`,
-              title: `Modwatch Dependency Graph`,
+              filename: `./node_modules/.visualizer/index-${env.TARGET}.html`,
+              title: `Modwatch Dependency Graph (${env.TARGET})`,
               bundlesRelative: true,
               template: "treemap"
             })
           ]
         : []
     )
+    .concat(env.TARGET === "frontend" ? [
+      html({
+        templatePath: path.resolve("src/frontend/index.html"),
+        inlineCss: true
+      })
+    ] : [])
 });
