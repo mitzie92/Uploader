@@ -4,12 +4,14 @@ import jwtDecode from "jwt-decode";
 import { Notification, User, RemoveFirstFromTuple } from "@modwatch/types";
 import { addNotification, removeNotification } from "@modwatch/core/src/store/index";
 
-import { clearUserState, setUserState, getUserState } from "./local";
+import { clearUserState, setUserState, getUserState, getUsers } from "./local";
 import { getToken } from "./ipc";
 
 const localUser = getUserState();
+const localUsers = getUsers();
 
 export type GlobalState = {
+  users: User[];
   user: User;
   notifications: Notification[];
   awaitingIpc: boolean;
@@ -22,6 +24,7 @@ export type GlobalActions = {
 };
 
 export const rawState: GlobalState = {
+  users: localUsers,
   user: {
     username: undefined,
     scopes: [],
@@ -73,9 +76,14 @@ export const actions = store => ({
     };
   },
   logout(state: GlobalState) {
+    const userIndex = state.users.findIndex(({ username }) => username === state.user.username);
     return {
       ...state,
-      user: clearUserState()
+      user: clearUserState(),
+      users: userIndex !== -1 ? [
+        ...state.users.slice(0, userIndex),
+        ...state.users.slice(userIndex + 1)
+      ] : state.users
     };
   },
   addNotification,

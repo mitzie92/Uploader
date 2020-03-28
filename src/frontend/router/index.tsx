@@ -90,7 +90,7 @@ export default class Routes extends Component<
           />
           <AsyncRoute
             key="upload"
-            path="/upload"
+            path="/upload/:username?"
             {...this.props}
             getComponent={() =>
               this.wrappedImport(

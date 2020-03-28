@@ -32,8 +32,9 @@ class Root extends Component<GlobalState & GlobalActions, {}> {
           ),
         1
       );
+      console.log(this.props.user, "route to upload on mount")
       route("/upload");
-    } else  {
+    } else {
       this.props.logout();
     }
   }
@@ -45,6 +46,7 @@ class Root extends Component<GlobalState & GlobalActions, {}> {
   logout = async () => {
     await this.props.logout();
     this.props.addNotification(`Logged Out`);
+    route("/landing");
   }
   render() {
     return (

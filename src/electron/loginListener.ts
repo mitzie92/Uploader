@@ -24,11 +24,11 @@ export default () => {
 
     authWindow.on("closed", () => {
       event.reply("login", "ERROR:Auth window was closed by user");
-    })
+    });
 
     authWindow.webContents.on('will-redirect', (event, url) => {
       handleNavigation(url)
-    })
+    });
 
     authWindow.loadURL(authUrl);
   });

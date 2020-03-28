@@ -4,6 +4,7 @@ import { Modlist, Game } from "@modwatch/types";
 import { GlobalState, GlobalActions } from "../store/index";
 import FileIcon from "../components/fileIcon";
 import { selectFiles, readFile } from "../store/ipc";
+import { getModlist } from "../store/pure";
 
 type SelectOption = {
   display: string;
@@ -76,6 +77,11 @@ export default class Upload extends Component<GlobalState & GlobalActions, {
   selectFiles = async ({ game, filename}) => {
     console.log(game, filename);
     console.log(await selectFiles({ game, filename }));
+  }
+  async componentDidMount() {
+    if(this.props.user.username) {
+      await getModlist({ username: this.props.user.username });
+    }
   }
   render() {
     return (
