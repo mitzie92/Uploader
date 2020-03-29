@@ -41,15 +41,6 @@ export default class Routes extends Component<
     if (this.state.fading || this.state.timeout) {
       return;
     }
-    // if (
-    //   e.previous &&
-    //   e.previous.indexOf("/u/") === 0 &&
-    //   e.current.key === "modlist" &&
-    //   e.current.props.matches.username ===
-    //     e.previous.slice(3, e.current.props.matches.username.length + 3)
-    // ) {
-    //   return;
-    // }
     e.previous && route(e.previous, true);
     setTimeout(() => {
       this.setState(

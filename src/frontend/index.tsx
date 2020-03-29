@@ -1,5 +1,5 @@
 import "preact/debug"; ///DEV_ONLY
-import { render, h, Component } from "preact";
+import { render, h, Component, Fragment } from "preact";
 import { Link, route } from "preact-router";
 import { Provider, connect } from "unistore/preact";
 
@@ -32,8 +32,6 @@ class Root extends Component<GlobalState & GlobalActions, {}> {
           ),
         1
       );
-      console.log(this.props.user, "route to upload on mount")
-      route("/upload");
     } else {
       this.props.logout();
     }
@@ -53,9 +51,14 @@ class Root extends Component<GlobalState & GlobalActions, {}> {
       <div class={this.props.awaitingIpc ? "loading" : ""}>
         <ModwatchNotifications {...this.props} />
         <ModwatchNav {...this.props}>
-          {!this.props.user.authenticated ?
-            <div class="nav-block" onClick={e => this.login()}>Login</div> :
-            <div class="nav-block" onClick={e => this.logout()}>Logout</div>
+          {this.props.user.authenticated ?
+            <Fragment>
+              <div class="nav-block" style={{
+                pointerEvents: "none"
+              }}>{this.props.user.username}</div>
+              <div class="nav-block" onClick={e => this.logout()}>Logout</div>
+            </Fragment> : 
+            <div class="nav-block" onClick={e => this.login()}>Login</div>
           }
           <div class="nav-block">Settings</div>
         </ModwatchNav>

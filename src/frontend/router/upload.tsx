@@ -5,6 +5,9 @@ import { GlobalState, GlobalActions } from "../store/index";
 import FileIcon from "../components/fileIcon";
 import { selectFiles, readFile } from "../store/ipc";
 import { getModlist } from "../store/pure";
+import { setUserState } from "../store/local";
+
+import { UploadFile } from "../../types";
 
 type SelectOption = {
   display: string;
@@ -75,8 +78,24 @@ export default class Upload extends Component<GlobalState & GlobalActions, {
     }));
   }
   selectFiles = async ({ game, filename}) => {
-    console.log(game, filename);
-    console.log(await selectFiles({ game, filename }));
+    const filePaths = await selectFiles({ game, filename });
+    const rawFiles = await readFile(filePaths);
+    const mapped: UploadFile = rawFiles.map(rawFile => ({
+      ...rawFile,
+      content: rawFile.content.replace(/\r/g, "").split("\n")
+    }));
+    const files = {}
+    for(let [key, value] of Object.entries(mapped)) {
+      files[key] = value;
+    }
+    setUserState({
+      ...this.props.user,
+      files: {
+        ...this.props.user.files,
+        ...files
+      }
+    })
+    console.log(mapped);
   }
   async componentDidMount() {
     if(this.props.user.username) {

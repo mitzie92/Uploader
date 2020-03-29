@@ -1,6 +1,6 @@
-import { User } from "@modwatch/types";
+import { UploadUser } from "../../types";
 
-export const getUsers = (): User[] => {
+export const getUsers = (): UploadUser[] => {
   const users = localStorage.getItem("modwatch.users");
   if(!users) {
     return [];
@@ -13,7 +13,7 @@ export const getUsers = (): User[] => {
   }
 };
 
-export const setCurrentUser = (username: string): User => {
+export const setCurrentUser = (username: string): UploadUser => {
   const users = getUsers();
   const user = users.find(user => user.username === username);
   if(!user) {
@@ -22,7 +22,7 @@ export const setCurrentUser = (username: string): User => {
   return localStorage.setItem("modwatch.currentuser", JSON.stringify(username)), user
 };
 
-export const setUsers = (users: User[]): User[] => (
+export const setUsers = (users: UploadUser[]): UploadUser[] => (
   localStorage.setItem("modwatch.users", JSON.stringify(users)), users
 );
 
@@ -30,7 +30,7 @@ export const clearUsers = (): [] => (
   localStorage.setItem("modwatch.users", "[]"), []
 );
 
-export const getUserState = (): User | {} => {
+export const getUserState = (): UploadUser | {} => {
   const user = localStorage.getItem("modwatch.user");
   if (!user) {
     return {};
@@ -43,7 +43,7 @@ export const getUserState = (): User | {} => {
   }
 };
 
-export const setUserState = (user): User | {} => {
+export const setUserState = (user): UploadUser | {} => {
   localStorage.setItem("modwatch.user", JSON.stringify(user));
   const users = getUsers();
   const userIndex = users.findIndex(({ username }) => user.username === username)

@@ -2,6 +2,7 @@ import createStore from "unistore";
 import jwtDecode from "jwt-decode";
 
 import { Notification, User, RemoveFirstFromTuple } from "@modwatch/types";
+import { UploadUser } from "../../types";
 import { addNotification, removeNotification } from "@modwatch/core/src/store/index";
 
 import { clearUserState, setUserState, getUserState, getUsers } from "./local";
@@ -11,8 +12,8 @@ const localUser = getUserState();
 const localUsers = getUsers();
 
 export type GlobalState = {
-  users: User[];
-  user: User;
+  users: UploadUser[];
+  user: UploadUser;
   notifications: Notification[];
   awaitingIpc: boolean;
 }
@@ -70,9 +71,15 @@ export const actions = store => ({
       scopes
     };
     setUserState(user);
+    const userIndex = state.users.findIndex(({ username }) => username === state.user.username);
     return {
       ...state,
-      user
+      user,
+      users: userIndex !== -1 ? [
+        ...state.users.slice(0, userIndex),
+        user,
+        ...state.users.slice(userIndex + 1)
+      ] : state.users.concat(user)
     };
   },
   logout(state: GlobalState) {

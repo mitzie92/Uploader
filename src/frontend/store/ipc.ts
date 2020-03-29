@@ -14,8 +14,8 @@ export async function selectFiles({ game, filename }: SelectFileProps): Promise<
   return ipcBuilder<Array<string>>("selectFiles", { game, filename });
 }
 
-export async function readFile({ game, filename }: SelectFileProps): Promise<any> {
-  return ipcBuilder("readFile", { game, filename });
+export async function readFile(path): Promise<any> {
+  return ipcBuilder("readFile", path);
 }
 
 export async function ipcBuilder<T = any>(name: string, ...args): Promise<T | string> {
